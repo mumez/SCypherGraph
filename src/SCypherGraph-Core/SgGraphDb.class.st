@@ -37,17 +37,47 @@ SgGraphDb >> allRelationshipTypes [
 
 { #category : #'actions-node' }
 SgGraphDb >> createNode: labels [
-	^ self createNode: labels properties: #()
+	^self createNode: labels properties: #()
 ]
 
 { #category : #'actions-node' }
 SgGraphDb >> createNode: labels properties: props [
-	
+	| n node query |
+	n := 'n' asCypherIdentifier.
+	node := CyNode name: n labels: labels props: props. 
+	query := CyQuery statements: {
+		CyCreate of: node.
+		CyReturn of: n.
+	}.
+	^self firstOrNilOf: (self runCypherResultWrapped: query)
+]
+
+{ #category : #private }
+SgGraphDb >> firstOrNilOf: aCollection [
+	aCollection isEmpty ifTrue: [^nil].
+	^ aCollection first
 ]
 
 { #category : #factory }
 SgGraphDb >> graphObjectClass [
 	^ SgGraphObject
+]
+
+{ #category : #'actions-node' }
+SgGraphDb >> mergeNode: labels [
+	^self mergeNode: labels properties: #()
+]
+
+{ #category : #'actions-node' }
+SgGraphDb >> mergeNode: labels properties: props [
+	| n node query |
+	n := 'n' asCypherIdentifier.
+	node := CyNode name: n labels: labels props: props. 
+	query := CyQuery statements: {
+		CyMerge of: node.
+		CyReturn of: n.
+	}.
+	^self firstOrNilOf: (self runCypherResultWrapped: query)
 ]
 
 { #category : #'actions-node' }
@@ -101,6 +131,11 @@ SgGraphDb >> runCypherResultWrapped: cypherQuery [
 	| rawRecords |
 	rawRecords := (self runCypher: cypherQuery cypherString) firstFieldValues.
 	^ rawRecords collect: [:each | self graphObjectClass on: each from: self]
+]
+
+{ #category : #private }
+SgGraphDb >> statusOfRunCypher: cypherQuery [
+	^ (self runCypher: cypherQuery cypherString) status
 ]
 
 { #category : #private }
