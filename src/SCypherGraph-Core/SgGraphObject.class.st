@@ -26,6 +26,11 @@ SgGraphObject >> db: anObject [
 	db := anObject
 ]
 
+{ #category : #deleting }
+SgGraphObject >> delete [
+	^self db deleteNodeAt: self id
+]
+
 { #category : #initialization }
 SgGraphObject >> initWithDb: aDatabase [
 	db := aDatabase.

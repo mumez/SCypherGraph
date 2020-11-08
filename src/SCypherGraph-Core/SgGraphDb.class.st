@@ -36,12 +36,22 @@ SgGraphDb >> allRelationshipTypes [
 ]
 
 { #category : #'actions-node' }
-SgGraphDb >> createNode: labels [
-	^self createNode: labels properties: #()
+SgGraphDb >> createNodeLabeled: label [
+	^self createNodeWithLabels: (Array with: label) 
 ]
 
 { #category : #'actions-node' }
-SgGraphDb >> createNode: labels properties: props [
+SgGraphDb >> createNodeLabeled: label properties: props [
+	^self createNodeWithLabels: (Array with: label) properties: props
+]
+
+{ #category : #'actions-node' }
+SgGraphDb >> createNodeWithLabels: labels [
+	^self createNodeWithLabels: labels properties: #()
+]
+
+{ #category : #'actions-node' }
+SgGraphDb >> createNodeWithLabels: labels properties: props [
 	| n node query |
 	n := 'n' asCypherIdentifier.
 	node := CyNode name: n labels: labels props: props. 
@@ -49,7 +59,36 @@ SgGraphDb >> createNode: labels properties: props [
 		CyCreate of: node.
 		CyReturn of: n.
 	}.
-	^self firstOrNilOf: (self runCypherResultWrapped: query)
+	^self firstOrNilOf: (self transactCypherResultWrapped: query)
+]
+
+{ #category : #'actions-node' }
+SgGraphDb >> deleteNode: aNode [
+	^self deleteNodeAt: aNode id
+]
+
+{ #category : #'actions-node' }
+SgGraphDb >> deleteNodeAt: systemId [
+	| n node query |
+	n := 'n' asCypherIdentifier.
+	node := CyNode name: n. 
+	query := CyQuery match: node where: (n getId equals: systemId)
+		delete: node.
+	^self statusOfTransactCypher: query
+]
+
+{ #category : #'actions-node' }
+SgGraphDb >> deleteNodesLabeled: label havingAll: assocArray [
+	^self deleteNodesWithLabels: label where: [:node | node havingAll: assocArray]
+]
+
+{ #category : #'actions-node' }
+SgGraphDb >> deleteNodesWithLabels: labels where: whereClauseBuilder [
+	| node query |
+	node := 'n' asCypherIdentifier.
+	query := CyQuery match: (CyNode name: node labels: labels)
+		 where: (whereClauseBuilder value: node) delete: node.
+	^self statusOfTransactCypher: query
 ]
 
 { #category : #private }
@@ -64,12 +103,22 @@ SgGraphDb >> graphObjectClass [
 ]
 
 { #category : #'actions-node' }
-SgGraphDb >> mergeNode: labels [
-	^self mergeNode: labels properties: #()
+SgGraphDb >> mergeNodeLabeled: label [
+	^self mergeNodeWithLabels: (Array with: label)
 ]
 
 { #category : #'actions-node' }
-SgGraphDb >> mergeNode: labels properties: props [
+SgGraphDb >> mergeNodeLabeled: label properties: props [
+	^self mergeNodeWithLabels: (Array with: label) properties: props
+]
+
+{ #category : #'actions-node' }
+SgGraphDb >> mergeNodeWithLabels: labels [
+	^self mergeNodeWithLabels: labels properties: #()
+]
+
+{ #category : #'actions-node' }
+SgGraphDb >> mergeNodeWithLabels: labels properties: props [
 	| n node query |
 	n := 'n' asCypherIdentifier.
 	node := CyNode name: n labels: labels props: props. 
@@ -77,7 +126,7 @@ SgGraphDb >> mergeNode: labels properties: props [
 		CyMerge of: node.
 		CyReturn of: n.
 	}.
-	^self firstOrNilOf: (self runCypherResultWrapped: query)
+	^self firstOrNilOf: (self transactCypherResultWrapped: query)
 ]
 
 { #category : #'actions-node' }
@@ -88,6 +137,16 @@ SgGraphDb >> nodesLabeled: label [
 { #category : #'actions-node' }
 SgGraphDb >> nodesLabeled: label havingAll: assocArray [
 	^self nodesWithLabels: (Array with: label) where: [:node | node havingAll: assocArray]
+]
+
+{ #category : #'actions-node' }
+SgGraphDb >> nodesWithLabels: labels [
+	^self nodesWithLabels: labels havingAll: #()
+]
+
+{ #category : #'actions-node' }
+SgGraphDb >> nodesWithLabels: labels havingAll: assocArray [
+	^self nodesWithLabels: labels where: [:node | node havingAll: assocArray]
 ]
 
 { #category : #'actions-node' }
@@ -136,6 +195,11 @@ SgGraphDb >> runCypherResultWrapped: cypherQuery [
 { #category : #private }
 SgGraphDb >> statusOfRunCypher: cypherQuery [
 	^ (self runCypher: cypherQuery cypherString) status
+]
+
+{ #category : #private }
+SgGraphDb >> statusOfTransactCypher: cypherQuery [
+	^ (self transactCypher: cypherQuery cypherString) status
 ]
 
 { #category : #private }
