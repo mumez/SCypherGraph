@@ -130,6 +130,26 @@ SgGraphDb >> mergeNodeWithLabels: labels properties: props [
 ]
 
 { #category : #'actions-node' }
+SgGraphDb >> nodeAt: systemId [
+	| n node query |
+	n := 'n' asCypherIdentifier.
+	node := CyNode name: n. 
+	query := CyQuery match: node where: (n getId equals: systemId)
+		return: node.
+	^self firstOrNilOf: (self runCypherResultWrapped: query)
+]
+
+{ #category : #'actions-node' }
+SgGraphDb >> nodeAt: systemId propertyAt: key put: value [
+	| n node query |
+	n := 'n' asCypherIdentifier.
+	node := CyNode name: n. 
+	query := CyQuery match: node where: (n getId equals: systemId)
+		set: {(n @ key) to: value}.
+	^self statusOfTransactCypher: query
+]
+
+{ #category : #'actions-node' }
 SgGraphDb >> nodesLabeled: label [
 	^self nodesLabeled: label havingAll: #()
 ]
