@@ -31,10 +31,6 @@ SgGraphObject >> delete [
 	^self db deleteNodeAt: self id
 ]
 
-{ #category : #properties }
-SgGraphObject >> initProperties: propAssocs [
-]
-
 { #category : #initialization }
 SgGraphObject >> initWithDb: aDatabase [
 	db := aDatabase.
@@ -45,6 +41,7 @@ SgGraphObject >> initWithDb: aDatabase [
 
 { #category : #properties }
 SgGraphObject >> mergeProperties: propAssocs [
+	^self db nodeAt: self id mergeProperties: propAssocs
 ]
 
 { #category : #printing }
@@ -55,6 +52,11 @@ SgGraphObject >> printOn: aStream [
 { #category : #properties }
 SgGraphObject >> properties [
 	^self rawGraphObject properties 
+]
+
+{ #category : #properties }
+SgGraphObject >> properties: propAssocs [
+	^self db nodeAt: self id properties: propAssocs
 ]
 
 { #category : #properties }

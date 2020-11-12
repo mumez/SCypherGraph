@@ -140,6 +140,28 @@ SgGraphDb >> nodeAt: systemId [
 ]
 
 { #category : #'actions-node' }
+SgGraphDb >> nodeAt: systemId mergeProperties: argsDict [
+	| n node query arguments |
+	n := 'n' asCypherIdentifier.
+	node := CyNode name: n. 
+	query := CyQuery match: node where: (n getId equals: systemId)
+		set: (n addAll: 'values' asCypherParameter).
+	arguments := { 'values' -> argsDict asDictionary } asDictionary.
+	^self statusOfTransactCypher: query arguments: arguments
+]
+
+{ #category : #'actions-node' }
+SgGraphDb >> nodeAt: systemId properties: argsDict [
+	| n node query arguments |
+	n := 'n' asCypherIdentifier.
+	node := CyNode name: n. 
+	query := CyQuery match: node where: (n getId equals: systemId)
+		set: (n to: 'values' asCypherParameter).
+	arguments := { 'values' -> argsDict asDictionary } asDictionary.
+	^self statusOfTransactCypher: query arguments: arguments	
+]
+
+{ #category : #'actions-node' }
 SgGraphDb >> nodeAt: systemId propertyAt: key put: value [
 	| n node query |
 	n := 'n' asCypherIdentifier.
@@ -220,6 +242,11 @@ SgGraphDb >> statusOfRunCypher: cypherQuery [
 { #category : #private }
 SgGraphDb >> statusOfTransactCypher: cypherQuery [
 	^ (self transactCypher: cypherQuery cypherString) status
+]
+
+{ #category : #private }
+SgGraphDb >> statusOfTransactCypher: cypherQuery arguments: argsDict [
+	^ (self transactCypher: cypherQuery cypherString arguments: argsDict) status
 ]
 
 { #category : #private }

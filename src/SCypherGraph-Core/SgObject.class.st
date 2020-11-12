@@ -89,6 +89,11 @@ SgObject >> transactCypher: cypherString [
 ]
 
 { #category : #'actions-cypher' }
+SgObject >> transactCypher: cypherString arguments: argsDict [
+	^self clientDo: [ :cli | cli transactCypher: cypherString arguments: argsDict]
+]
+
+{ #category : #'actions-cypher' }
 SgObject >> transactCyphers: cypherStrings [
 	^self clientDo: [ :cli | cli transactCyphers: cypherStrings ]
 ]
