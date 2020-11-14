@@ -78,3 +78,10 @@ SgGraphObject >> rawGraphObject [
 SgGraphObject >> rawGraphObject: anObject [
 	rawGraphObject := anObject
 ]
+
+{ #category : #loading }
+SgGraphObject >> reload [
+	| newGraphObject |
+	newGraphObject := self db nodeAt: self id.
+	self rawGraphObject: newGraphObject.
+]
