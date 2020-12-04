@@ -129,6 +129,31 @@ SgGraphDb >> mergeNodeWithLabels: labels properties: props [
 	^self firstOrNilOf: (self transactCypherResultWrapped: query)
 ]
 
+{ #category : #'actions-relationships' }
+SgGraphDb >> mergeOutRelationshipTyped: types fromNodeId: startNodeId toNodeId: endNodeId properties: propertiesArray [
+	| query |
+	query := CyQuery
+		matchNodeAt: startNodeId
+		nodeAt: endNodeId
+		mergePatternAndReturnIn: [ :startNode :endNode :relIdentifier | 
+			| rel |
+			rel := relIdentifier rel: types props: propertiesArray.
+			startNode - rel -> endNode ].
+
+	"^self firstOrNilOf: (self transactCypherResultWrapped: query)"
+	query inspect
+]
+
+{ #category : #'actions-relationships' }
+SgGraphDb >> mergeRelationshipTyped: types from: startNode to: endNode direction: direction havingAll: assocArray [
+	
+]
+
+{ #category : #'actions-relationships' }
+SgGraphDb >> mergeRelationshipTyped: types from: startNode to: endNode direction: direction properties: props [
+	
+]
+
 { #category : #'actions-node' }
 SgGraphDb >> nodeAt: systemId [
 	| n node query |
@@ -216,6 +241,36 @@ SgGraphDb >> nodesWithLabels: labels where: whereClauseBuilder skip: skip limit:
 	query := CyQuery match: (CyNode name: node labels: labels)
 		 where: (whereClauseBuilder value: node) return: node skip: skip limit: limit.
 	^self runCypherResultWrapped: query
+]
+
+{ #category : #'actions-relationships' }
+SgGraphDb >> relationshipAt: systemId [
+	| n node query |
+	n := 'r' asCypherIdentifier.
+	node := CyRelationship name: n. 
+	query := CyQuery match: node where: (n getId equals: systemId)
+		return: node.
+	^self firstOrNilOf: (self runCypherResultWrapped: query)
+]
+
+{ #category : #'actions-relationships' }
+SgGraphDb >> relationshipsOfType: relType [
+]
+
+{ #category : #'actions-relationships' }
+SgGraphDb >> relationshipsOfType: relType from: startNode to: endNode having: key value: value [ 
+]
+
+{ #category : #'actions-relationships' }
+SgGraphDb >> relationshipsOfTypes: relType [
+]
+
+{ #category : #'actions-relationships' }
+SgGraphDb >> relationshipsOfTypes: relTypes from: startNode to: endNode havingAll: assocArray [
+]
+
+{ #category : #'actions-relationships' }
+SgGraphDb >> relationshipsOfTypes: relTypes havingAll: assocArray [
 ]
 
 { #category : #'initialize-release' }
