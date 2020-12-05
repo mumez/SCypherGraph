@@ -8,9 +8,18 @@ Class {
 	#category : #'SCypherGraph-Core'
 }
 
+{ #category : #factory }
+SgGraphObject class >> classFor: rawGraphObject [
+	rawGraphObject isNode ifTrue: [ ^SgNode ].
+	rawGraphObject isRelationship ifTrue: [ ^SgRelationship ].
+	rawGraphObject isPath ifTrue: [ ^SgPath ].
+	
+	^self
+]
+
 { #category : #'instance creation' }
 SgGraphObject class >> on: rawGraphObject from: database [
-	^self new
+	^(self classFor: rawGraphObject) new
 		rawGraphObject: rawGraphObject;
 		initWithDb: database;
 		yourself

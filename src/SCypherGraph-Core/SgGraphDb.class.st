@@ -139,9 +139,9 @@ SgGraphDb >> mergeOutRelationshipTyped: types fromNodeId: startNodeId toNodeId: 
 			| rel |
 			rel := relIdentifier rel: types props: propertiesArray.
 			startNode - rel -> endNode ].
-
-	"^self firstOrNilOf: (self transactCypherResultWrapped: query)"
-	query inspect
+	query inspect.
+	^self firstOrNilOf: (self transactCypherResultWrapped: query).
+	
 ]
 
 { #category : #'actions-relationships' }
