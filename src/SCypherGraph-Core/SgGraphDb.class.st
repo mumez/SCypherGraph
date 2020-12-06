@@ -102,6 +102,20 @@ SgGraphDb >> graphObjectClass [
 	^ SgGraphObject
 ]
 
+{ #category : #'actions-relationships' }
+SgGraphDb >> mergeInRelationshipTyped: types fromNodeId: startNodeId toNodeId: endNodeId properties: propertiesArray [
+	| query |
+	query := CyQuery
+		matchNodeAt: startNodeId
+		nodeAt: endNodeId
+		mergePatternAndReturnIn: [ :startNode :endNode :relIdentifier | 
+			| rel |
+			rel := relIdentifier rel: types props: propertiesArray.
+			startNode <- rel - endNode ].
+	^self firstOrNilOf: (self transactCypherResultWrapped: query).
+	
+]
+
 { #category : #'actions-node' }
 SgGraphDb >> mergeNodeLabeled: label [
 	^self mergeNodeWithLabels: (Array with: label)
@@ -139,18 +153,21 @@ SgGraphDb >> mergeOutRelationshipTyped: types fromNodeId: startNodeId toNodeId: 
 			| rel |
 			rel := relIdentifier rel: types props: propertiesArray.
 			startNode - rel -> endNode ].
-	query inspect.
 	^self firstOrNilOf: (self transactCypherResultWrapped: query).
 	
 ]
 
 { #category : #'actions-relationships' }
-SgGraphDb >> mergeRelationshipTyped: types from: startNode to: endNode direction: direction havingAll: assocArray [
-	
-]
-
-{ #category : #'actions-relationships' }
-SgGraphDb >> mergeRelationshipTyped: types from: startNode to: endNode direction: direction properties: props [
+SgGraphDb >> mergeRelationshipTyped: types fromNodeId: startNodeId toNodeId: endNodeId properties: propertiesArray [
+	| query |
+	query := CyQuery
+		matchNodeAt: startNodeId
+		nodeAt: endNodeId
+		mergePatternAndReturnIn: [ :startNode :endNode :relIdentifier | 
+			| rel |
+			rel := relIdentifier rel: types props: propertiesArray.
+			startNode - rel - endNode ].
+	^self firstOrNilOf: (self transactCypherResultWrapped: query).
 	
 ]
 
@@ -245,11 +262,13 @@ SgGraphDb >> nodesWithLabels: labels where: whereClauseBuilder skip: skip limit:
 
 { #category : #'actions-relationships' }
 SgGraphDb >> relationshipAt: systemId [
-	| n node query |
-	n := 'r' asCypherIdentifier.
-	node := CyRelationship name: n. 
-	query := CyQuery match: node where: (n getId equals: systemId)
-		return: node.
+	| s e r rel query |
+	s := 's' asCypherIdentifier.
+	e := 'e' asCypherIdentifier.
+	r := 'r' asCypherIdentifier.
+	rel := CyRelationship start: s end: e name: r. 
+	query := CyQuery match: rel where: (r getId equals: systemId)
+		return: r.
 	^self firstOrNilOf: (self runCypherResultWrapped: query)
 ]
 
