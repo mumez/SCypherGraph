@@ -103,6 +103,28 @@ SgGraphDb >> graphObjectClass [
 ]
 
 { #category : #'actions-relationships' }
+SgGraphDb >> inRelationshipsOfType: relType from: startNodeId [
+	^self inRelationshipsOfTypes: relType from: startNodeId
+]
+
+{ #category : #'actions-relationships' }
+SgGraphDb >> inRelationshipsOfType: relType from: startNodeId havingAll: assocArray [
+	^self inRelationshipsOfTypes: relType from: startNodeId havingAll: assocArray
+]
+
+{ #category : #'actions-relationships' }
+SgGraphDb >> inRelationshipsOfTypes: relTypes from: startNodeId [
+	^self inRelationshipsOfTypes: relTypes from: startNodeId havingAll: nil
+]
+
+{ #category : #'actions-relationships' }
+SgGraphDb >> inRelationshipsOfTypes: relTypes from: startNodeId havingAll: assocArray [
+	^self relationshipsOfTypes: relTypes from: startNodeId havingAll: assocArray usingPathIn: [:startNode :rel :endNode |
+		startNode <- rel - endNode
+	]
+]
+
+{ #category : #'actions-relationships' }
 SgGraphDb >> mergeInRelationshipTyped: types fromNodeId: startNodeId toNodeId: endNodeId properties: propertiesArray [
 	| query |
 	query := CyQuery
@@ -261,35 +283,51 @@ SgGraphDb >> nodesWithLabels: labels where: whereClauseBuilder skip: skip limit:
 ]
 
 { #category : #'actions-relationships' }
+SgGraphDb >> outRelationshipsOfType: relType from: startNodeId [
+	^self outRelationshipsOfTypes: relType from: startNodeId
+]
+
+{ #category : #'actions-relationships' }
+SgGraphDb >> outRelationshipsOfType: relType from: startNodeId havingAll: assocArray [
+	^self outRelationshipsOfTypes: relType from: startNodeId havingAll: assocArray
+]
+
+{ #category : #'actions-relationships' }
+SgGraphDb >> outRelationshipsOfTypes: relTypes from: startNodeId [
+	^self outRelationshipsOfTypes: relTypes from: startNodeId havingAll: nil
+]
+
+{ #category : #'actions-relationships' }
+SgGraphDb >> outRelationshipsOfTypes: relTypes from: startNodeId havingAll: assocArray [
+	^self relationshipsOfTypes: relTypes from: startNodeId havingAll: assocArray usingPathIn: [:startNode :rel :endNode |
+		startNode - rel -> endNode
+	]
+	
+]
+
+{ #category : #'actions-relationships' }
 SgGraphDb >> relationshipAt: systemId [
 	| s e r rel query |
 	s := 's' asCypherIdentifier.
 	e := 'e' asCypherIdentifier.
 	r := 'r' asCypherIdentifier.
 	rel := CyRelationship start: s end: e name: r. 
-	query := CyQuery match: rel where: (r getId equals: systemId)
-		return: r.
+	query := CyQuery match: rel where: (r getId equals: systemId) return: r.
 	^self firstOrNilOf: (self runCypherResultWrapped: query)
 ]
 
 { #category : #'actions-relationships' }
-SgGraphDb >> relationshipsOfType: relType [
-]
-
-{ #category : #'actions-relationships' }
-SgGraphDb >> relationshipsOfType: relType from: startNode to: endNode having: key value: value [ 
-]
-
-{ #category : #'actions-relationships' }
-SgGraphDb >> relationshipsOfTypes: relType [
-]
-
-{ #category : #'actions-relationships' }
-SgGraphDb >> relationshipsOfTypes: relTypes from: startNode to: endNode havingAll: assocArray [
-]
-
-{ #category : #'actions-relationships' }
-SgGraphDb >> relationshipsOfTypes: relTypes havingAll: assocArray [
+SgGraphDb >> relationshipsOfTypes: relTypes from: startNodeId havingAll: assocArray usingPathIn: pathCreationBlock [
+	| s e r p rel path query returnedPath |
+	s := 's' asCypherIdentifier.
+	e := 'e' asCypherIdentifier.
+	r := 'r' asCypherIdentifier.
+	p := 'p' asCypherIdentifier.
+	rel := r rel: relTypes props: assocArray.
+	path := p path: (pathCreationBlock value: s asNode value: rel value: e asNode).
+	query := CyQuery match: path where: (s getId equals: startNodeId) return: p.
+	returnedPath := self firstOrNilOf: (self runCypherResultWrapped: query).
+	^ returnedPath ifNotNil: [ :pa | pa relationship ]
 ]
 
 { #category : #'initialize-release' }
