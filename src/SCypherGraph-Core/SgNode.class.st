@@ -30,6 +30,11 @@ SgNode >> inRelationshipsOfTypes: relTypes havingAll: relProps endNodeWithLabels
 		inRelationshipsOfTypes: relTypes from: self id havingAll: relProps endNodeWithLabels: labels havingAll: endNodeProps
 ]
 
+{ #category : #properties }
+SgNode >> mergeProperties: propAssocs [
+	^self db nodeAt: self id mergeProperties: propAssocs
+]
+
 { #category : #'accessing-relationships' }
 SgNode >> outRelationshipsOfType: relType [
 	^ self outRelationshipsOfTypes: {relType} havingAll: {} endNodeWithLabels: {} havingAll: {}
@@ -49,4 +54,14 @@ SgNode >> outRelationshipsOfType: relType having: key value: value [
 SgNode >> outRelationshipsOfTypes: relTypes havingAll: relProps endNodeWithLabels: labels havingAll: endNodeProps [
 	^self db 
 		outRelationshipsOfTypes: relTypes from: self id havingAll: relProps endNodeWithLabels: labels havingAll: endNodeProps
+]
+
+{ #category : #properties }
+SgNode >> properties: propAssocs [
+	^self db nodeAt: self id properties: propAssocs
+]
+
+{ #category : #properties }
+SgNode >> propertyAt: key put: value [
+	^self db nodeAt: self id propertyAt: key put: value
 ]

@@ -91,6 +91,17 @@ SgGraphDb >> deleteNodesWithLabels: labels where: whereClauseBuilder [
 	^self statusOfTransactCypher: query
 ]
 
+{ #category : #'actions-relationships' }
+SgGraphDb >> deleteRelationshipAt: systemId [
+	| s e r rel query |
+	s := 's' asCypherIdentifier.
+	e := 'e' asCypherIdentifier.
+	r := 'r' asCypherIdentifier.
+	rel := CyRelationship start: s end: e name: r. 
+	query := CyQuery match: rel where: (r getId equals: systemId) delete: r.
+	^self statusOfTransactCypher: query
+]
+
 { #category : #private }
 SgGraphDb >> firstOrNilOf: aCollection [
 	aCollection isEmpty ifTrue: [^nil].
@@ -283,6 +294,44 @@ SgGraphDb >> relationshipAt: systemId [
 	rel := CyRelationship start: s end: e name: r. 
 	query := CyQuery match: rel where: (r getId equals: systemId) return: r.
 	^self firstOrNilOf: (self runCypherResultWrapped: query)
+]
+
+{ #category : #'actions-relationships' }
+SgGraphDb >> relationshipAt: systemId mergeProperties: argsDict [
+	| s e r rel query arguments |
+	s := 's' asCypherIdentifier.
+	e := 'e' asCypherIdentifier.
+	r := 'r' asCypherIdentifier.
+	rel := CyRelationship start: s end: e name: r. 
+	query := CyQuery match: rel where: (r getId equals: systemId)
+		set: (r addAll: 'values' asCypherParameter).	
+	arguments := { 'values' -> argsDict asDictionary } asDictionary.
+	^self statusOfTransactCypher: query arguments: arguments
+]
+
+{ #category : #'actions-relationships' }
+SgGraphDb >> relationshipAt: systemId properties: argsDict [
+	| s e r rel query arguments |
+	s := 's' asCypherIdentifier.
+	e := 'e' asCypherIdentifier.
+	r := 'r' asCypherIdentifier.
+	rel := CyRelationship start: s end: e name: r. 
+	query := CyQuery match: rel where: (r getId equals: systemId)
+		set: (r to: 'values' asCypherParameter).
+	arguments := { 'values' -> argsDict asDictionary } asDictionary.
+	^self statusOfTransactCypher: query arguments: arguments	
+]
+
+{ #category : #'actions-relationships' }
+SgGraphDb >> relationshipAt: systemId propertyAt: key put: value [
+	| s e r rel query |
+	s := 's' asCypherIdentifier.
+	e := 'e' asCypherIdentifier.
+	r := 'r' asCypherIdentifier.
+	rel := CyRelationship start: s end: e name: r. 
+	query := CyQuery match: rel where: (r getId equals: systemId)
+		set: {(r @ key) to: value}.
+	^self statusOfTransactCypher: query
 ]
 
 { #category : #'actions-relationships' }

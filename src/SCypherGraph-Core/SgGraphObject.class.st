@@ -50,7 +50,6 @@ SgGraphObject >> initWithDb: aDatabase [
 
 { #category : #properties }
 SgGraphObject >> mergeProperties: propAssocs [
-	^self db nodeAt: self id mergeProperties: propAssocs
 ]
 
 { #category : #printing }
@@ -65,7 +64,6 @@ SgGraphObject >> properties [
 
 { #category : #properties }
 SgGraphObject >> properties: propAssocs [
-	^self db nodeAt: self id properties: propAssocs
 ]
 
 { #category : #properties }
@@ -75,7 +73,6 @@ SgGraphObject >> propertyAt: key [
 
 { #category : #properties }
 SgGraphObject >> propertyAt: key put: value [
-	^self db nodeAt: self id propertyAt: key put: value
 ]
 
 { #category : #accessing }
