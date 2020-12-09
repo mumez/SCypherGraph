@@ -35,6 +35,20 @@ SgGraphDb >> allRelationshipTypes [
 	^ result firstFieldValues
 ]
 
+{ #category : #'actions-relationships' }
+SgGraphDb >> createInRelationshipTyped: types fromNodeId: startNodeId toNodeId: endNodeId properties: propertiesArray [
+	| query |
+	query := CyQuery
+		matchPathWithNodeAt: startNodeId
+		nodeAt: endNodeId
+		createIn: [ :startNode :endNode :relIdentifier | 
+			| rel |
+			rel := relIdentifier rel: types props: propertiesArray.
+			startNode <- rel - endNode ].
+	^self firstOrNilOf: (self transactCypherResultWrapped: query).
+	
+]
+
 { #category : #'actions-node' }
 SgGraphDb >> createNodeLabeled: label [
 	^self createNodeWithLabels: (Array with: label) 
@@ -60,6 +74,34 @@ SgGraphDb >> createNodeWithLabels: labels properties: props [
 		CyReturn of: n.
 	}.
 	^self firstOrNilOf: (self transactCypherResultWrapped: query)
+]
+
+{ #category : #'actions-relationships' }
+SgGraphDb >> createOutRelationshipTyped: types fromNodeId: startNodeId toNodeId: endNodeId properties: propertiesArray [
+	| query |
+	query := CyQuery
+		matchPathWithNodeAt: startNodeId
+		nodeAt: endNodeId
+		createIn: [ :startNode :endNode :relIdentifier | 
+			| rel |
+			rel := relIdentifier rel: types props: propertiesArray.
+			startNode - rel -> endNode ].
+	^self firstOrNilOf: (self transactCypherResultWrapped: query).
+	
+]
+
+{ #category : #'actions-relationships' }
+SgGraphDb >> createRelationshipTyped: types fromNodeId: startNodeId toNodeId: endNodeId properties: propertiesArray [
+	| query |
+	query := CyQuery
+		matchPathWithNodeAt: startNodeId
+		nodeAt: endNodeId
+		createIn: [ :startNode :endNode :relIdentifier | 
+			| rel |
+			rel := relIdentifier rel: types props: propertiesArray.
+			startNode - rel - endNode ].
+	^self firstOrNilOf: (self transactCypherResultWrapped: query).
+	
 ]
 
 { #category : #'actions-node' }
