@@ -68,4 +68,5 @@ SgNode >> propertyAt: key put: value [
 
 { #category : #'actrions-relationships' }
 SgNode >> relateOneTo: otherNode typed: types properties: propertiesArray [
+	^ self db mergeOutRelationshipTyped: types fromNodeId: self id toNodeId: otherNode id properties: propertiesArray
 ]

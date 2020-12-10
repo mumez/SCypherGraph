@@ -296,6 +296,11 @@ SgGraphDb >> nodesLabeled: labelOrLabels where: whereClauseBuilder skip: skip li
 	^self runCypherResultWrapped: query
 ]
 
+{ #category : #private }
+SgGraphDb >> objectsFromCypherResults: rawRecords [
+	^ rawRecords collect: [:each | self graphObjectClass on: each from: self]
+]
+
 { #category : #'actions-relationships' }
 SgGraphDb >> outRelationshipsTyped: typeOrTypes from: startNodeId havingAll: assocArray endNodeWithLabels: labels havingAll: endNodeProps [
 	^self relationshipsTyped: typeOrTypes from: startNodeId havingAll: assocArray endNodeWithLabels: labels havingAll: endNodeProps usingPathIn: [:startNode :rel :endNode |
@@ -363,7 +368,7 @@ SgGraphDb >> relationshipsTyped: typeOrTypes from: startNodeId havingAll: relPro
 		pathIn: pathCreationBlock.
 	returnedPath := self
 		firstOrNilOf: (self runCypherResultWrapped: query).
-	^ returnedPath ifNotNil: [ :pa | pa relationship ]
+	^ returnedPath ifNil: [#()] ifNotNil: [ :pa | self objectsFromCypherResults: pa relationships]
 ]
 
 { #category : #'initialize-release' }
@@ -379,7 +384,7 @@ SgGraphDb >> release [
 SgGraphDb >> runCypherResultWrapped: cypherQuery [
 	| rawRecords |
 	rawRecords := (self runCypher: cypherQuery cypherString) firstFieldValues.
-	^ rawRecords collect: [:each | self graphObjectClass on: each from: self]
+	^self objectsFromCypherResults: rawRecords
 ]
 
 { #category : #private }
@@ -401,5 +406,5 @@ SgGraphDb >> statusOfTransactCypher: cypherQuery arguments: argsDict [
 SgGraphDb >> transactCypherResultWrapped: cypherQuery [
 	| rawRecords |
 	rawRecords := (self transactCypher: cypherQuery cypherString) firstFieldValues.
-	^ rawRecords collect: [:each | self graphObjectClass on: each from: self]
+	^self objectsFromCypherResults: rawRecords
 ]
