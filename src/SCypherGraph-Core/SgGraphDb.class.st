@@ -36,14 +36,14 @@ SgGraphDb >> allRelationshipTypes [
 ]
 
 { #category : #'actions-relationships' }
-SgGraphDb >> createInRelationshipTyped: types fromNodeId: startNodeId toNodeId: endNodeId properties: propertiesArray [
+SgGraphDb >> createInRelationshipTyped: typeOrTypes fromNodeId: startNodeId toNodeId: endNodeId properties: propertiesArray [
 	| query |
 	query := CyQuery
 		matchPathWithNodeAt: startNodeId
 		nodeAt: endNodeId
 		createIn: [ :startNode :endNode :relIdentifier | 
 			| rel |
-			rel := relIdentifier rel: types props: propertiesArray.
+			rel := relIdentifier rel: typeOrTypes props: propertiesArray.
 			startNode <- rel - endNode ].
 	^self firstOrNilOf: (self transactCypherResultWrapped: query).
 	
@@ -68,28 +68,28 @@ SgGraphDb >> createNodeLabeled: labelOrLabels properties: props [
 ]
 
 { #category : #'actions-relationships' }
-SgGraphDb >> createOutRelationshipTyped: types fromNodeId: startNodeId toNodeId: endNodeId properties: propertiesArray [
+SgGraphDb >> createOutRelationshipTyped: typeOrTypes fromNodeId: startNodeId toNodeId: endNodeId properties: propertiesArray [
 	| query |
 	query := CyQuery
 		matchPathWithNodeAt: startNodeId
 		nodeAt: endNodeId
 		createIn: [ :startNode :endNode :relIdentifier | 
 			| rel |
-			rel := relIdentifier rel: types props: propertiesArray.
+			rel := relIdentifier rel: typeOrTypes props: propertiesArray.
 			startNode - rel -> endNode ].
 	^self firstOrNilOf: (self transactCypherResultWrapped: query).
 	
 ]
 
 { #category : #'actions-relationships' }
-SgGraphDb >> createRelationshipTyped: types fromNodeId: startNodeId toNodeId: endNodeId properties: propertiesArray [
+SgGraphDb >> createRelationshipTyped: typeOrTypes fromNodeId: startNodeId toNodeId: endNodeId properties: propertiesArray [
 	| query |
 	query := CyQuery
 		matchPathWithNodeAt: startNodeId
 		nodeAt: endNodeId
 		createIn: [ :startNode :endNode :relIdentifier | 
 			| rel |
-			rel := relIdentifier rel: types props: propertiesArray.
+			rel := relIdentifier rel: typeOrTypes props: propertiesArray.
 			startNode - rel - endNode ].
 	^self firstOrNilOf: (self transactCypherResultWrapped: query).
 	
@@ -148,21 +148,21 @@ SgGraphDb >> graphObjectClass [
 ]
 
 { #category : #'actions-relationships' }
-SgGraphDb >> inRelationshipsOfTypes: relTypes from: startNodeId havingAll: assocArray endNodeWithLabels: labels havingAll: endNodeProps [
-	^self relationshipsOfTypes: relTypes from: startNodeId havingAll: assocArray endNodeWithLabels: labels havingAll: endNodeProps usingPathIn: [:startNode :rel :endNode |
+SgGraphDb >> inRelationshipsTyped: typeOrTypes from: startNodeId havingAll: assocArray endNodeWithLabels: labels havingAll: endNodeProps [
+	^self relationshipsTyped: typeOrTypes from: startNodeId havingAll: assocArray endNodeWithLabels: labels havingAll: endNodeProps usingPathIn: [:startNode :rel :endNode |
 		startNode <- rel - endNode
 	]
 ]
 
 { #category : #'actions-relationships' }
-SgGraphDb >> mergeInRelationshipTyped: types fromNodeId: startNodeId toNodeId: endNodeId properties: propertiesArray [
+SgGraphDb >> mergeInRelationshipTyped: typeOrTypes fromNodeId: startNodeId toNodeId: endNodeId properties: propertiesArray [
 	| query |
 	query := CyQuery
 		matchPathWithNodeAt: startNodeId
 		nodeAt: endNodeId
 		mergeIn: [ :startNode :endNode :relIdentifier | 
 			| rel |
-			rel := relIdentifier rel: types props: propertiesArray.
+			rel := relIdentifier rel: typeOrTypes props: propertiesArray.
 			startNode <- rel - endNode ].
 	^self firstOrNilOf: (self transactCypherResultWrapped: query).
 	
@@ -187,28 +187,28 @@ SgGraphDb >> mergeNodeLabeled: labelOrLabels properties: props [
 ]
 
 { #category : #'actions-relationships' }
-SgGraphDb >> mergeOutRelationshipTyped: types fromNodeId: startNodeId toNodeId: endNodeId properties: propertiesArray [
+SgGraphDb >> mergeOutRelationshipTyped: typeOrTypes fromNodeId: startNodeId toNodeId: endNodeId properties: propertiesArray [
 	| query |
 	query := CyQuery
 		matchPathWithNodeAt: startNodeId
 		nodeAt: endNodeId
 		mergeIn: [ :startNode :endNode :relIdentifier | 
 			| rel |
-			rel := relIdentifier rel: types props: propertiesArray.
+			rel := relIdentifier rel: typeOrTypes props: propertiesArray.
 			startNode - rel -> endNode ].
 	^self firstOrNilOf: (self transactCypherResultWrapped: query).
 	
 ]
 
 { #category : #'actions-relationships' }
-SgGraphDb >> mergeRelationshipTyped: types fromNodeId: startNodeId toNodeId: endNodeId properties: propertiesArray [
+SgGraphDb >> mergeRelationshipTyped: typeOrTypes fromNodeId: startNodeId toNodeId: endNodeId properties: propertiesArray [
 	| query |
 	query := CyQuery
 		matchPathWithNodeAt: startNodeId
 		nodeAt: endNodeId
 		mergeIn: [ :startNode :endNode :relIdentifier | 
 			| rel |
-			rel := relIdentifier rel: types props: propertiesArray.
+			rel := relIdentifier rel: typeOrTypes props: propertiesArray.
 			startNode - rel - endNode ].
 	^self firstOrNilOf: (self transactCypherResultWrapped: query).
 	
@@ -297,8 +297,8 @@ SgGraphDb >> nodesLabeled: labelOrLabels where: whereClauseBuilder skip: skip li
 ]
 
 { #category : #'actions-relationships' }
-SgGraphDb >> outRelationshipsOfTypes: relTypes from: startNodeId havingAll: assocArray endNodeWithLabels: labels havingAll: endNodeProps [
-	^self relationshipsOfTypes: relTypes from: startNodeId havingAll: assocArray endNodeWithLabels: labels havingAll: endNodeProps usingPathIn: [:startNode :rel :endNode |
+SgGraphDb >> outRelationshipsTyped: typeOrTypes from: startNodeId havingAll: assocArray endNodeWithLabels: labels havingAll: endNodeProps [
+	^self relationshipsTyped: typeOrTypes from: startNodeId havingAll: assocArray endNodeWithLabels: labels havingAll: endNodeProps usingPathIn: [:startNode :rel :endNode |
 		startNode - rel -> endNode
 	]
 ]
@@ -353,10 +353,10 @@ SgGraphDb >> relationshipAt: systemId propertyAt: key put: value [
 ]
 
 { #category : #'actions-relationships' }
-SgGraphDb >> relationshipsOfTypes: relTypes from: startNodeId havingAll: relProps endNodeWithLabels: labels havingAll: endNodeProps usingPathIn: pathCreationBlock [
+SgGraphDb >> relationshipsTyped: typeOrTypes from: startNodeId havingAll: relProps endNodeWithLabels: labels havingAll: endNodeProps usingPathIn: pathCreationBlock [
 	| query returnedPath |
 	query := CyQuery
-		matchPathWithRelationshipsOfTypes: relTypes
+		matchPathWithRelationshipsOfTypes: typeOrTypes
 		havingAll: relProps
 		fromNodeAt: startNodeId
 		endNodeIn: [ :e | e node: labels props: endNodeProps ]

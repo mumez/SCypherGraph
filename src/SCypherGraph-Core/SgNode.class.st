@@ -10,24 +10,24 @@ SgNode >> delete [
 ]
 
 { #category : #'accessing-relationships' }
-SgNode >> inRelationshipsOfType: relType [
-	^ self inRelationshipsOfTypes: {relType} havingAll: {} endNodeWithLabels: {} havingAll: {}
+SgNode >> inRelationshipsTyped: typeOrTypes [
+	^ self inRelationshipsTyped: typeOrTypes havingAll: {} endNodeWithLabels: {} havingAll: {}
 ]
 
 { #category : #'accessing-relationships' }
-SgNode >> inRelationshipsOfType: relType endNodeHaving: key value: value [
-	^ self inRelationshipsOfTypes: {relType} havingAll: {} endNodeWithLabels: {} havingAll: {key->value}
+SgNode >> inRelationshipsTyped: typeOrTypes endNodeHaving: key value: value [
+	^ self inRelationshipsTyped: typeOrTypes havingAll: {} endNodeWithLabels: {} havingAll: {key->value}
 ]
 
 { #category : #'accessing-relationships' }
-SgNode >> inRelationshipsOfType: relType having: key value: value [
-	^ self inRelationshipsOfTypes: {relType} havingAll: {key->value} endNodeWithLabels: {} havingAll: {}
+SgNode >> inRelationshipsTyped: typeOrTypes having: key value: value [
+	^ self inRelationshipsTyped: typeOrTypes havingAll: {key->value} endNodeWithLabels: {} havingAll: {}
 ]
 
 { #category : #'accessing-relationships' }
-SgNode >> inRelationshipsOfTypes: relTypes havingAll: relProps endNodeWithLabels: labels havingAll: endNodeProps [
+SgNode >> inRelationshipsTyped: typeOrTypes havingAll: relProps endNodeWithLabels: labels havingAll: endNodeProps [
 	^self db 
-		inRelationshipsOfTypes: relTypes from: self id havingAll: relProps endNodeWithLabels: labels havingAll: endNodeProps
+		inRelationshipsTyped: typeOrTypes from: self id havingAll: relProps endNodeWithLabels: labels havingAll: endNodeProps
 ]
 
 { #category : #properties }
@@ -36,24 +36,24 @@ SgNode >> mergeProperties: propAssocs [
 ]
 
 { #category : #'accessing-relationships' }
-SgNode >> outRelationshipsOfType: relType [
-	^ self outRelationshipsOfTypes: {relType} havingAll: {} endNodeWithLabels: {} havingAll: {}
+SgNode >> outRelationshipsTyped: typeOrTypes [
+	^ self outRelationshipsTyped: typeOrTypes havingAll: {} endNodeWithLabels: {} havingAll: {}
 ]
 
 { #category : #'accessing-relationships' }
-SgNode >> outRelationshipsOfType: relType endNodeHaving: key value: value [
-	^ self outRelationshipsOfTypes: {relType} havingAll: {} endNodeWithLabels: {} havingAll: {key->value}
+SgNode >> outRelationshipsTyped: typeOrTypes endNodeHaving: key value: value [
+	^ self outRelationshipsTyped: typeOrTypes havingAll: {} endNodeWithLabels: {} havingAll: {key->value}
 ]
 
 { #category : #'accessing-relationships' }
-SgNode >> outRelationshipsOfType: relType having: key value: value [
-	^ self outRelationshipsOfTypes: {relType} havingAll: {key->value} endNodeWithLabels: {} havingAll: {}
+SgNode >> outRelationshipsTyped: typeOrTypes having: key value: value [
+	^ self outRelationshipsTyped: typeOrTypes havingAll: {key->value} endNodeWithLabels: {} havingAll: {}
 ]
 
 { #category : #'accessing-relationships' }
-SgNode >> outRelationshipsOfTypes: relTypes havingAll: relProps endNodeWithLabels: labels havingAll: endNodeProps [
+SgNode >> outRelationshipsTyped: typeOrTypes havingAll: relProps endNodeWithLabels: labels havingAll: endNodeProps [
 	^self db 
-		outRelationshipsOfTypes: relTypes from: self id havingAll: relProps endNodeWithLabels: labels havingAll: endNodeProps
+		outRelationshipsTyped: typeOrTypes from: self id havingAll: relProps endNodeWithLabels: labels havingAll: endNodeProps
 ]
 
 { #category : #properties }
@@ -66,6 +66,6 @@ SgNode >> propertyAt: key put: value [
 	^self db nodeAt: self id propertyAt: key put: value
 ]
 
-{ #category : #relationships }
+{ #category : #'actrions-relationships' }
 SgNode >> relateOneTo: otherNode typed: types properties: propertiesArray [
 ]
