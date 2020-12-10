@@ -50,23 +50,14 @@ SgGraphDb >> createInRelationshipTyped: types fromNodeId: startNodeId toNodeId: 
 ]
 
 { #category : #'actions-node' }
-SgGraphDb >> createNodeLabeled: label [
-	^self createNodeWithLabels: (Array with: label) 
+SgGraphDb >> createNodeLabeled: labelOrLabels [
+	^self createNodeLabeled: labelOrLabels properties: #()
 ]
 
 { #category : #'actions-node' }
-SgGraphDb >> createNodeLabeled: label properties: props [
-	^self createNodeWithLabels: (Array with: label) properties: props
-]
-
-{ #category : #'actions-node' }
-SgGraphDb >> createNodeWithLabels: labels [
-	^self createNodeWithLabels: labels properties: #()
-]
-
-{ #category : #'actions-node' }
-SgGraphDb >> createNodeWithLabels: labels properties: props [
-	| n node query |
+SgGraphDb >> createNodeLabeled: labelOrLabels properties: props [
+	| labels n node query |
+	labels := labelOrLabels isArray ifTrue: [ labelOrLabels ] ifFalse: [ Array with: labelOrLabels ].
 	n := 'n' asCypherIdentifier.
 	node := CyNode name: n labels: labels props: props. 
 	query := CyQuery statements: {
@@ -120,13 +111,14 @@ SgGraphDb >> deleteNodeAt: systemId [
 ]
 
 { #category : #'actions-node' }
-SgGraphDb >> deleteNodesLabeled: label havingAll: assocArray [
-	^self deleteNodesWithLabels: label where: [:node | node havingAll: assocArray]
+SgGraphDb >> deleteNodesLabeled: labelOrLabels havingAll: assocArray [
+	^self deleteNodesLabeled: labelOrLabels where: [:node | node havingAll: assocArray]
 ]
 
 { #category : #'actions-node' }
-SgGraphDb >> deleteNodesWithLabels: labels where: whereClauseBuilder [
-	| node query |
+SgGraphDb >> deleteNodesLabeled: labelOrLabels where: whereClauseBuilder [
+	| labels node query |
+	labels := labelOrLabels isArray ifTrue: [ labelOrLabels ] ifFalse: [ Array with: labelOrLabels ].
 	node := 'n' asCypherIdentifier.
 	query := CyQuery match: (CyNode name: node labels: labels)
 		 where: (whereClauseBuilder value: node) delete: node.
@@ -177,23 +169,14 @@ SgGraphDb >> mergeInRelationshipTyped: types fromNodeId: startNodeId toNodeId: e
 ]
 
 { #category : #'actions-node' }
-SgGraphDb >> mergeNodeLabeled: label [
-	^self mergeNodeWithLabels: (Array with: label)
+SgGraphDb >> mergeNodeLabeled: labelOrLabels [
+	^self mergeNodeLabeled: labelOrLabels properties: #()
 ]
 
 { #category : #'actions-node' }
-SgGraphDb >> mergeNodeLabeled: label properties: props [
-	^self mergeNodeWithLabels: (Array with: label) properties: props
-]
-
-{ #category : #'actions-node' }
-SgGraphDb >> mergeNodeWithLabels: labels [
-	^self mergeNodeWithLabels: labels properties: #()
-]
-
-{ #category : #'actions-node' }
-SgGraphDb >> mergeNodeWithLabels: labels properties: props [
-	| n node query |
+SgGraphDb >> mergeNodeLabeled: labelOrLabels properties: props [
+	| labels n node query |
+	labels := labelOrLabels isArray ifTrue: [ labelOrLabels ] ifFalse: [ Array with: labelOrLabels ].
 	n := 'n' asCypherIdentifier.
 	node := CyNode name: n labels: labels props: props. 
 	query := CyQuery statements: {
@@ -274,28 +257,19 @@ SgGraphDb >> nodeAt: systemId propertyAt: key put: value [
 ]
 
 { #category : #'actions-node' }
-SgGraphDb >> nodesLabeled: label [
-	^self nodesLabeled: label havingAll: #()
+SgGraphDb >> nodesLabeled: labelOrLabels [
+	^self nodesLabeled: labelOrLabels havingAll: #()
 ]
 
 { #category : #'actions-node' }
-SgGraphDb >> nodesLabeled: label havingAll: assocArray [
-	^self nodesWithLabels: (Array with: label) where: [:node | node havingAll: assocArray]
+SgGraphDb >> nodesLabeled: labelOrLabels havingAll: assocArray [
+	^self nodesLabeled: labelOrLabels where: [:node | node havingAll: assocArray]
 ]
 
 { #category : #'actions-node' }
-SgGraphDb >> nodesWithLabels: labels [
-	^self nodesWithLabels: labels havingAll: #()
-]
-
-{ #category : #'actions-node' }
-SgGraphDb >> nodesWithLabels: labels havingAll: assocArray [
-	^self nodesWithLabels: labels where: [:node | node havingAll: assocArray]
-]
-
-{ #category : #'actions-node' }
-SgGraphDb >> nodesWithLabels: labels where: whereClauseBuilder [
-	| node query |
+SgGraphDb >> nodesLabeled: labelOrLabels where: whereClauseBuilder [
+	| labels node query |
+	labels := labelOrLabels isArray ifTrue: [ labelOrLabels ] ifFalse: [ Array with: labelOrLabels ].
 	node := 'n' asCypherIdentifier.
 	query := CyQuery match: (CyNode name: node labels: labels)
 		 where: (whereClauseBuilder value: node) return: node.
@@ -303,8 +277,9 @@ SgGraphDb >> nodesWithLabels: labels where: whereClauseBuilder [
 ]
 
 { #category : #'actions-node' }
-SgGraphDb >> nodesWithLabels: labels where: whereClauseBuilder orderBy: orderByClause skip: skip limit: limit [
-	| node query |
+SgGraphDb >> nodesLabeled: labelOrLabels where: whereClauseBuilder orderBy: orderByClause skip: skip limit: limit [
+	| labels node query |
+	labels := labelOrLabels isArray ifTrue: [ labelOrLabels ] ifFalse: [ Array with: labelOrLabels ].
 	node := 'n' asCypherIdentifier.
 	query := CyQuery match: (CyNode name: node labels: labels)
 		 where: (whereClauseBuilder value: node) return: node orderBy: orderByClause skip: skip limit: limit.
@@ -312,8 +287,9 @@ SgGraphDb >> nodesWithLabels: labels where: whereClauseBuilder orderBy: orderByC
 ]
 
 { #category : #'actions-node' }
-SgGraphDb >> nodesWithLabels: labels where: whereClauseBuilder skip: skip limit: limit [
-	| node query |
+SgGraphDb >> nodesLabeled: labelOrLabels where: whereClauseBuilder skip: skip limit: limit [
+	| labels node query |
+	labels := labelOrLabels isArray ifTrue: [ labelOrLabels ] ifFalse: [ Array with: labelOrLabels ].
 	node := 'n' asCypherIdentifier.
 	query := CyQuery match: (CyNode name: node labels: labels)
 		 where: (whereClauseBuilder value: node) return: node skip: skip limit: limit.

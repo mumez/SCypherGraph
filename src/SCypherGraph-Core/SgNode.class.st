@@ -65,3 +65,7 @@ SgNode >> properties: propAssocs [
 SgNode >> propertyAt: key put: value [
 	^self db nodeAt: self id propertyAt: key put: value
 ]
+
+{ #category : #relationships }
+SgNode >> relateOneTo: otherNode typed: types properties: propertiesArray [
+]
