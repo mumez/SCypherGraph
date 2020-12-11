@@ -11,7 +11,7 @@ Class {
 
 { #category : #private }
 SgObject >> clientDo: aBlock [
-	^ self sessionManager clientDo: aBlock at: self settings 
+	^ self sessionManager clientDo: aBlock at: self settings clientKindKey
 ]
 
 { #category : #factory }
