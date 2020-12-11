@@ -59,6 +59,73 @@ SgBasicTestCase >> testAllRelationshipTypes [
 ]
 
 { #category : #testing }
+SgBasicTestCase >> testCreateAndDeleteNode [
+	| personLabel |
+	personLabel := 'TestPerson'.
+	self dbDo: [ :db |
+		| existedNodes node retrievedNode |
+		existedNodes := db nodesLabeled: personLabel.
+		self assert: (existedNodes isEmpty).
+		
+		node := db createNodeLabeled: personLabel properties: {'name' -> 'john'. 'age' -> 23}.
+		existedNodes := db nodesLabeled: personLabel.
+		self assert: (existedNodes size = 1).
+		retrievedNode := db nodeAt: node id.
+		self assert: (retrievedNode id = node id).
+		self assert: (node properties = {'name' -> 'john'. 'age' -> 23} asDictionary).
+		self assert: (node properties = retrievedNode properties).
+		
+		node delete.
+		retrievedNode := db nodeAt: node id.
+		self assert: (retrievedNode isNil).
+		
+		existedNodes := db nodesLabeled: personLabel.
+		self assert: (existedNodes isEmpty).
+	]
+]
+
+{ #category : #testing }
+SgBasicTestCase >> testGetSetNodeProperties [
+	| personLabel |
+	personLabel := 'TestPerson'.
+	self dbDo: [ :db |
+		| existedNodes node retrievedNode |
+		existedNodes := db nodesLabeled: personLabel.
+		self assert: (existedNodes isEmpty).
+		
+		node := db createNodeLabeled: personLabel properties: {'name' -> 'john'. 'age' -> 23}.
+		existedNodes := db nodesLabeled: personLabel.
+		self assert: (existedNodes size = 1).
+		retrievedNode := db nodeAt: node id.
+		self assert: (retrievedNode id = node id).
+		self assert: (node properties = {'name' -> 'john'. 'age' -> 23} asDictionary).
+		self assert: (node properties = retrievedNode properties).
+		node properties: { 'address' -> 'none' }.
+		node reload.
+		
+		retrievedNode := db nodeAt: node id.
+		self assert: (retrievedNode id = node id).
+		self assert: (node properties = {'address' -> 'none'} asDictionary).
+		self assert: (node properties = retrievedNode properties).
+		
+		node mergeProperties: {'name' -> 'paul'. 'age' -> 24}.
+		node reload.
+		
+		retrievedNode := db nodeAt: node id.
+		self assert: (retrievedNode id = node id).
+		self assert: (node properties = {'address' -> 'none'. 'name' -> 'paul'. 'age' -> 24} asDictionary).
+		self assert: (node properties = retrievedNode properties).
+		
+		node delete.
+		retrievedNode := db nodeAt: node id.
+		self assert: (retrievedNode isNil).
+		
+		existedNodes := db nodesLabeled: personLabel.
+		self assert: (existedNodes isEmpty).
+	]
+]
+
+{ #category : #testing }
 SgBasicTestCase >> testNodesLabeled [
 	self dbDo: [ :db |
 		| nodes |

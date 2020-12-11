@@ -35,24 +35,29 @@ SgGraphDb >> allRelationshipTypes [
 	^ result firstFieldValues
 ]
 
-{ #category : #'actions-node' }
-SgGraphDb >> createNodeLabeled: label [
-	^self createNodeWithLabels: (Array with: label) 
+{ #category : #'actions-relationships' }
+SgGraphDb >> createInRelationshipTyped: typeOrTypes fromNodeId: startNodeId toNodeId: endNodeId properties: propertiesArray [
+	| query |
+	query := CyQuery
+		matchPathWithNodeAt: startNodeId
+		nodeAt: endNodeId
+		createIn: [ :startNode :endNode :relIdentifier | 
+			| rel |
+			rel := relIdentifier rel: typeOrTypes props: propertiesArray.
+			startNode <- rel - endNode ].
+	^self firstOrNilOf: (self transactCypherResultWrapped: query).
+	
 ]
 
 { #category : #'actions-node' }
-SgGraphDb >> createNodeLabeled: label properties: props [
-	^self createNodeWithLabels: (Array with: label) properties: props
+SgGraphDb >> createNodeLabeled: labelOrLabels [
+	^self createNodeLabeled: labelOrLabels properties: #()
 ]
 
 { #category : #'actions-node' }
-SgGraphDb >> createNodeWithLabels: labels [
-	^self createNodeWithLabels: labels properties: #()
-]
-
-{ #category : #'actions-node' }
-SgGraphDb >> createNodeWithLabels: labels properties: props [
-	| n node query |
+SgGraphDb >> createNodeLabeled: labelOrLabels properties: props [
+	| labels n node query |
+	labels := labelOrLabels isArray ifTrue: [ labelOrLabels ] ifFalse: [ Array with: labelOrLabels ].
 	n := 'n' asCypherIdentifier.
 	node := CyNode name: n labels: labels props: props. 
 	query := CyQuery statements: {
@@ -60,6 +65,34 @@ SgGraphDb >> createNodeWithLabels: labels properties: props [
 		CyReturn of: n.
 	}.
 	^self firstOrNilOf: (self transactCypherResultWrapped: query)
+]
+
+{ #category : #'actions-relationships' }
+SgGraphDb >> createOutRelationshipTyped: typeOrTypes fromNodeId: startNodeId toNodeId: endNodeId properties: propertiesArray [
+	| query |
+	query := CyQuery
+		matchPathWithNodeAt: startNodeId
+		nodeAt: endNodeId
+		createIn: [ :startNode :endNode :relIdentifier | 
+			| rel |
+			rel := relIdentifier rel: typeOrTypes props: propertiesArray.
+			startNode - rel -> endNode ].
+	^self firstOrNilOf: (self transactCypherResultWrapped: query).
+	
+]
+
+{ #category : #'actions-relationships' }
+SgGraphDb >> createRelationshipTyped: typeOrTypes fromNodeId: startNodeId toNodeId: endNodeId properties: propertiesArray [
+	| query |
+	query := CyQuery
+		matchPathWithNodeAt: startNodeId
+		nodeAt: endNodeId
+		createIn: [ :startNode :endNode :relIdentifier | 
+			| rel |
+			rel := relIdentifier rel: typeOrTypes props: propertiesArray.
+			startNode - rel - endNode ].
+	^self firstOrNilOf: (self transactCypherResultWrapped: query).
+	
 ]
 
 { #category : #'actions-node' }
@@ -78,16 +111,28 @@ SgGraphDb >> deleteNodeAt: systemId [
 ]
 
 { #category : #'actions-node' }
-SgGraphDb >> deleteNodesLabeled: label havingAll: assocArray [
-	^self deleteNodesWithLabels: label where: [:node | node havingAll: assocArray]
+SgGraphDb >> deleteNodesLabeled: labelOrLabels havingAll: assocArray [
+	^self deleteNodesLabeled: labelOrLabels where: [:node | node havingAll: assocArray]
 ]
 
 { #category : #'actions-node' }
-SgGraphDb >> deleteNodesWithLabels: labels where: whereClauseBuilder [
-	| node query |
+SgGraphDb >> deleteNodesLabeled: labelOrLabels where: whereClauseBuilder [
+	| labels node query |
+	labels := labelOrLabels isArray ifTrue: [ labelOrLabels ] ifFalse: [ Array with: labelOrLabels ].
 	node := 'n' asCypherIdentifier.
 	query := CyQuery match: (CyNode name: node labels: labels)
 		 where: (whereClauseBuilder value: node) delete: node.
+	^self statusOfTransactCypher: query
+]
+
+{ #category : #'actions-relationships' }
+SgGraphDb >> deleteRelationshipAt: systemId [
+	| s e r rel query |
+	s := 's' asCypherIdentifier.
+	e := 'e' asCypherIdentifier.
+	r := 'r' asCypherIdentifier.
+	rel := CyRelationship start: s end: e name: r. 
+	query := CyQuery match: rel where: (r getId equals: systemId) delete: r.
 	^self statusOfTransactCypher: query
 ]
 
@@ -102,24 +147,36 @@ SgGraphDb >> graphObjectClass [
 	^ SgGraphObject
 ]
 
-{ #category : #'actions-node' }
-SgGraphDb >> mergeNodeLabeled: label [
-	^self mergeNodeWithLabels: (Array with: label)
+{ #category : #'actions-relationships' }
+SgGraphDb >> inRelationshipsTyped: typeOrTypes from: startNodeId havingAll: assocArray endNodeWithLabels: labels havingAll: endNodeProps [
+	^self relationshipsTyped: typeOrTypes from: startNodeId havingAll: assocArray endNodeWithLabels: labels havingAll: endNodeProps usingPathIn: [:startNode :rel :endNode |
+		startNode <- rel - endNode
+	]
+]
+
+{ #category : #'actions-relationships' }
+SgGraphDb >> mergeInRelationshipTyped: typeOrTypes fromNodeId: startNodeId toNodeId: endNodeId properties: propertiesArray [
+	| query |
+	query := CyQuery
+		matchPathWithNodeAt: startNodeId
+		nodeAt: endNodeId
+		mergeIn: [ :startNode :endNode :relIdentifier | 
+			| rel |
+			rel := relIdentifier rel: typeOrTypes props: propertiesArray.
+			startNode <- rel - endNode ].
+	^self firstOrNilOf: (self transactCypherResultWrapped: query).
+	
 ]
 
 { #category : #'actions-node' }
-SgGraphDb >> mergeNodeLabeled: label properties: props [
-	^self mergeNodeWithLabels: (Array with: label) properties: props
+SgGraphDb >> mergeNodeLabeled: labelOrLabels [
+	^self mergeNodeLabeled: labelOrLabels properties: #()
 ]
 
 { #category : #'actions-node' }
-SgGraphDb >> mergeNodeWithLabels: labels [
-	^self mergeNodeWithLabels: labels properties: #()
-]
-
-{ #category : #'actions-node' }
-SgGraphDb >> mergeNodeWithLabels: labels properties: props [
-	| n node query |
+SgGraphDb >> mergeNodeLabeled: labelOrLabels properties: props [
+	| labels n node query |
+	labels := labelOrLabels isArray ifTrue: [ labelOrLabels ] ifFalse: [ Array with: labelOrLabels ].
 	n := 'n' asCypherIdentifier.
 	node := CyNode name: n labels: labels props: props. 
 	query := CyQuery statements: {
@@ -127,6 +184,34 @@ SgGraphDb >> mergeNodeWithLabels: labels properties: props [
 		CyReturn of: n.
 	}.
 	^self firstOrNilOf: (self transactCypherResultWrapped: query)
+]
+
+{ #category : #'actions-relationships' }
+SgGraphDb >> mergeOutRelationshipTyped: typeOrTypes fromNodeId: startNodeId toNodeId: endNodeId properties: propertiesArray [
+	| query |
+	query := CyQuery
+		matchPathWithNodeAt: startNodeId
+		nodeAt: endNodeId
+		mergeIn: [ :startNode :endNode :relIdentifier | 
+			| rel |
+			rel := relIdentifier rel: typeOrTypes props: propertiesArray.
+			startNode - rel -> endNode ].
+	^self firstOrNilOf: (self transactCypherResultWrapped: query).
+	
+]
+
+{ #category : #'actions-relationships' }
+SgGraphDb >> mergeRelationshipTyped: typeOrTypes fromNodeId: startNodeId toNodeId: endNodeId properties: propertiesArray [
+	| query |
+	query := CyQuery
+		matchPathWithNodeAt: startNodeId
+		nodeAt: endNodeId
+		mergeIn: [ :startNode :endNode :relIdentifier | 
+			| rel |
+			rel := relIdentifier rel: typeOrTypes props: propertiesArray.
+			startNode - rel - endNode ].
+	^self firstOrNilOf: (self transactCypherResultWrapped: query).
+	
 ]
 
 { #category : #'actions-node' }
@@ -172,28 +257,19 @@ SgGraphDb >> nodeAt: systemId propertyAt: key put: value [
 ]
 
 { #category : #'actions-node' }
-SgGraphDb >> nodesLabeled: label [
-	^self nodesLabeled: label havingAll: #()
+SgGraphDb >> nodesLabeled: labelOrLabels [
+	^self nodesLabeled: labelOrLabels havingAll: #()
 ]
 
 { #category : #'actions-node' }
-SgGraphDb >> nodesLabeled: label havingAll: assocArray [
-	^self nodesWithLabels: (Array with: label) where: [:node | node havingAll: assocArray]
+SgGraphDb >> nodesLabeled: labelOrLabels havingAll: assocArray [
+	^self nodesLabeled: labelOrLabels where: [:node | node havingAll: assocArray]
 ]
 
 { #category : #'actions-node' }
-SgGraphDb >> nodesWithLabels: labels [
-	^self nodesWithLabels: labels havingAll: #()
-]
-
-{ #category : #'actions-node' }
-SgGraphDb >> nodesWithLabels: labels havingAll: assocArray [
-	^self nodesWithLabels: labels where: [:node | node havingAll: assocArray]
-]
-
-{ #category : #'actions-node' }
-SgGraphDb >> nodesWithLabels: labels where: whereClauseBuilder [
-	| node query |
+SgGraphDb >> nodesLabeled: labelOrLabels where: whereClauseBuilder [
+	| labels node query |
+	labels := labelOrLabels isArray ifTrue: [ labelOrLabels ] ifFalse: [ Array with: labelOrLabels ].
 	node := 'n' asCypherIdentifier.
 	query := CyQuery match: (CyNode name: node labels: labels)
 		 where: (whereClauseBuilder value: node) return: node.
@@ -201,8 +277,9 @@ SgGraphDb >> nodesWithLabels: labels where: whereClauseBuilder [
 ]
 
 { #category : #'actions-node' }
-SgGraphDb >> nodesWithLabels: labels where: whereClauseBuilder orderBy: orderByClause skip: skip limit: limit [
-	| node query |
+SgGraphDb >> nodesLabeled: labelOrLabels where: whereClauseBuilder orderBy: orderByClause skip: skip limit: limit [
+	| labels node query |
+	labels := labelOrLabels isArray ifTrue: [ labelOrLabels ] ifFalse: [ Array with: labelOrLabels ].
 	node := 'n' asCypherIdentifier.
 	query := CyQuery match: (CyNode name: node labels: labels)
 		 where: (whereClauseBuilder value: node) return: node orderBy: orderByClause skip: skip limit: limit.
@@ -210,12 +287,88 @@ SgGraphDb >> nodesWithLabels: labels where: whereClauseBuilder orderBy: orderByC
 ]
 
 { #category : #'actions-node' }
-SgGraphDb >> nodesWithLabels: labels where: whereClauseBuilder skip: skip limit: limit [
-	| node query |
+SgGraphDb >> nodesLabeled: labelOrLabels where: whereClauseBuilder skip: skip limit: limit [
+	| labels node query |
+	labels := labelOrLabels isArray ifTrue: [ labelOrLabels ] ifFalse: [ Array with: labelOrLabels ].
 	node := 'n' asCypherIdentifier.
 	query := CyQuery match: (CyNode name: node labels: labels)
 		 where: (whereClauseBuilder value: node) return: node skip: skip limit: limit.
 	^self runCypherResultWrapped: query
+]
+
+{ #category : #private }
+SgGraphDb >> objectsFromCypherResults: rawRecords [
+	^ rawRecords collect: [:each | self graphObjectClass on: each from: self]
+]
+
+{ #category : #'actions-relationships' }
+SgGraphDb >> outRelationshipsTyped: typeOrTypes from: startNodeId havingAll: assocArray endNodeWithLabels: labels havingAll: endNodeProps [
+	^self relationshipsTyped: typeOrTypes from: startNodeId havingAll: assocArray endNodeWithLabels: labels havingAll: endNodeProps usingPathIn: [:startNode :rel :endNode |
+		startNode - rel -> endNode
+	]
+]
+
+{ #category : #'actions-relationships' }
+SgGraphDb >> relationshipAt: systemId [
+	| s e r rel query |
+	s := 's' asCypherIdentifier.
+	e := 'e' asCypherIdentifier.
+	r := 'r' asCypherIdentifier.
+	rel := CyRelationship start: s end: e name: r. 
+	query := CyQuery match: rel where: (r getId equals: systemId) return: r.
+	^self firstOrNilOf: (self runCypherResultWrapped: query)
+]
+
+{ #category : #'actions-relationships' }
+SgGraphDb >> relationshipAt: systemId mergeProperties: argsDict [
+	| s e r rel query arguments |
+	s := 's' asCypherIdentifier.
+	e := 'e' asCypherIdentifier.
+	r := 'r' asCypherIdentifier.
+	rel := CyRelationship start: s end: e name: r. 
+	query := CyQuery match: rel where: (r getId equals: systemId)
+		set: (r addAll: 'values' asCypherParameter).	
+	arguments := { 'values' -> argsDict asDictionary } asDictionary.
+	^self statusOfTransactCypher: query arguments: arguments
+]
+
+{ #category : #'actions-relationships' }
+SgGraphDb >> relationshipAt: systemId properties: argsDict [
+	| s e r rel query arguments |
+	s := 's' asCypherIdentifier.
+	e := 'e' asCypherIdentifier.
+	r := 'r' asCypherIdentifier.
+	rel := CyRelationship start: s end: e name: r. 
+	query := CyQuery match: rel where: (r getId equals: systemId)
+		set: (r to: 'values' asCypherParameter).
+	arguments := { 'values' -> argsDict asDictionary } asDictionary.
+	^self statusOfTransactCypher: query arguments: arguments	
+]
+
+{ #category : #'actions-relationships' }
+SgGraphDb >> relationshipAt: systemId propertyAt: key put: value [
+	| s e r rel query |
+	s := 's' asCypherIdentifier.
+	e := 'e' asCypherIdentifier.
+	r := 'r' asCypherIdentifier.
+	rel := CyRelationship start: s end: e name: r. 
+	query := CyQuery match: rel where: (r getId equals: systemId)
+		set: {(r @ key) to: value}.
+	^self statusOfTransactCypher: query
+]
+
+{ #category : #'actions-relationships' }
+SgGraphDb >> relationshipsTyped: typeOrTypes from: startNodeId havingAll: relProps endNodeWithLabels: labels havingAll: endNodeProps usingPathIn: pathCreationBlock [
+	| query returnedPath |
+	query := CyQuery
+		matchPathWithRelationshipsOfTypes: typeOrTypes
+		havingAll: relProps
+		fromNodeAt: startNodeId
+		endNodeIn: [ :e | e node: labels props: endNodeProps ]
+		pathIn: pathCreationBlock.
+	returnedPath := self
+		firstOrNilOf: (self runCypherResultWrapped: query).
+	^ returnedPath ifNil: [#()] ifNotNil: [ :pa | self objectsFromCypherResults: pa relationships]
 ]
 
 { #category : #'initialize-release' }
@@ -231,7 +384,7 @@ SgGraphDb >> release [
 SgGraphDb >> runCypherResultWrapped: cypherQuery [
 	| rawRecords |
 	rawRecords := (self runCypher: cypherQuery cypherString) firstFieldValues.
-	^ rawRecords collect: [:each | self graphObjectClass on: each from: self]
+	^self objectsFromCypherResults: rawRecords
 ]
 
 { #category : #private }
@@ -253,5 +406,5 @@ SgGraphDb >> statusOfTransactCypher: cypherQuery arguments: argsDict [
 SgGraphDb >> transactCypherResultWrapped: cypherQuery [
 	| rawRecords |
 	rawRecords := (self transactCypher: cypherQuery cypherString) firstFieldValues.
-	^ rawRecords collect: [:each | self graphObjectClass on: each from: self]
+	^self objectsFromCypherResults: rawRecords
 ]

@@ -8,9 +8,18 @@ Class {
 	#category : #'SCypherGraph-Core'
 }
 
+{ #category : #factory }
+SgGraphObject class >> classFor: rawGraphObject [
+	rawGraphObject isNode ifTrue: [ ^SgNode ].
+	rawGraphObject isRelationship ifTrue: [ ^SgRelationship ].
+	rawGraphObject isPath ifTrue: [ ^SgPath ].
+	
+	^self
+]
+
 { #category : #'instance creation' }
 SgGraphObject class >> on: rawGraphObject from: database [
-	^self new
+	^(self classFor: rawGraphObject) new
 		rawGraphObject: rawGraphObject;
 		initWithDb: database;
 		yourself
@@ -41,7 +50,6 @@ SgGraphObject >> initWithDb: aDatabase [
 
 { #category : #properties }
 SgGraphObject >> mergeProperties: propAssocs [
-	^self db nodeAt: self id mergeProperties: propAssocs
 ]
 
 { #category : #printing }
@@ -56,7 +64,6 @@ SgGraphObject >> properties [
 
 { #category : #properties }
 SgGraphObject >> properties: propAssocs [
-	^self db nodeAt: self id properties: propAssocs
 ]
 
 { #category : #properties }
@@ -66,7 +73,6 @@ SgGraphObject >> propertyAt: key [
 
 { #category : #properties }
 SgGraphObject >> propertyAt: key put: value [
-	^self db nodeAt: self id propertyAt: key put: value
 ]
 
 { #category : #accessing }
@@ -77,4 +83,11 @@ SgGraphObject >> rawGraphObject [
 { #category : #accessing }
 SgGraphObject >> rawGraphObject: anObject [
 	rawGraphObject := anObject
+]
+
+{ #category : #loading }
+SgGraphObject >> reload [
+	| newGraphObject |
+	newGraphObject := self db nodeAt: self id.
+	self rawGraphObject: newGraphObject.
 ]
