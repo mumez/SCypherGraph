@@ -10,8 +10,9 @@ BaselineOfSCypherGraph >> baseline: spec [
 
 	spec for: #common do: [
 		self scypher: spec.
+		self smallbolt: spec.
 		spec 
-			package: 'SCypherGraph-Core' with: [spec requires: 'SCypher'];
+			package: 'SCypherGraph-Core' with: [spec requires: #('SCypher' 'SmallBolt')];
 			package: 'SCypherGraph-Tests' with: [ spec requires: #('SCypherGraph-Core')].
 		spec 
 			group: 'default' with: #('Core' 'Tests');
@@ -27,5 +28,14 @@ BaselineOfSCypherGraph >> scypher: spec [
 		baseline: 'SCypher'
 		with: [ spec
 				repository: 'github://mumez/SCypher/repository';
+				loads: 'default' ]
+]
+
+{ #category : #'external projects' }
+BaselineOfSCypherGraph >> smallbolt: spec [
+	spec
+		baseline: 'SmallBolt'
+		with: [ spec
+				repository: 'github://mumez/SmallBolt/src';
 				loads: 'default' ]
 ]
