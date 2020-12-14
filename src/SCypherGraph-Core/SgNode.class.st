@@ -10,6 +10,11 @@ SgNode >> delete [
 ]
 
 { #category : #'accessing-relationships' }
+SgNode >> inRelationships [
+	^ self inRelationshipsTyped: {}
+]
+
+{ #category : #'accessing-relationships' }
 SgNode >> inRelationshipsTyped: typeOrTypes [
 	^ self inRelationshipsTyped: typeOrTypes havingAll: {} endNodeWithLabels: {} havingAll: {}
 ]
@@ -26,13 +31,36 @@ SgNode >> inRelationshipsTyped: typeOrTypes having: key value: value [
 
 { #category : #'accessing-relationships' }
 SgNode >> inRelationshipsTyped: typeOrTypes havingAll: relProps endNodeWithLabels: labels havingAll: endNodeProps [
-	^self db 
-		inRelationshipsTyped: typeOrTypes from: self id havingAll: relProps endNodeWithLabels: labels havingAll: endNodeProps
+	^ self db
+		relationshipsTyped: typeOrTypes
+		direction: #in
+		from: self id
+		havingAll: relProps
+		endNodeWithLabels: labels
+		havingAll: endNodeProps
+		whereIn: [ :start :rel :end | ]
+]
+
+{ #category : #'accessing-relationships' }
+SgNode >> inRelationshipsTyped: typeOrTypes where: where [
+	^ self db
+		relationshipsTyped: typeOrTypes
+		direction: #in
+		from: self id
+		havingAll: {}
+		endNodeWithLabels: {}
+		havingAll: {}
+		whereIn: where
 ]
 
 { #category : #properties }
 SgNode >> mergeProperties: propAssocs [
 	^self db nodeAt: self id mergeProperties: propAssocs
+]
+
+{ #category : #'accessing-relationships' }
+SgNode >> outRelationships [
+	^ self outRelationshipsTyped: {}
 ]
 
 { #category : #'accessing-relationships' }
@@ -52,8 +80,26 @@ SgNode >> outRelationshipsTyped: typeOrTypes having: key value: value [
 
 { #category : #'accessing-relationships' }
 SgNode >> outRelationshipsTyped: typeOrTypes havingAll: relProps endNodeWithLabels: labels havingAll: endNodeProps [
-	^self db 
-		outRelationshipsTyped: typeOrTypes from: self id havingAll: relProps endNodeWithLabels: labels havingAll: endNodeProps
+	^ self db
+		relationshipsTyped: typeOrTypes
+		direction: #out
+		from: self id
+		havingAll: relProps
+		endNodeWithLabels: labels
+		havingAll: endNodeProps
+		whereIn: [ :start :rel :end | ]
+]
+
+{ #category : #'accessing-relationships' }
+SgNode >> outRelationshipsTyped: typeOrTypes where: where [
+	^ self db
+		relationshipsTyped: typeOrTypes
+		direction: #out
+		from: self id
+		havingAll: {}
+		endNodeWithLabels: {}
+		havingAll: {}
+		whereIn: where
 ]
 
 { #category : #properties }
