@@ -148,13 +148,6 @@ SgGraphDb >> graphObjectClass [
 ]
 
 { #category : #'actions-relationships' }
-SgGraphDb >> inRelationshipsTyped: typeOrTypes from: startNodeId havingAll: assocArray endNodeWithLabels: labels havingAll: endNodeProps [
-	^self relationshipsTyped: typeOrTypes from: startNodeId havingAll: assocArray endNodeWithLabels: labels havingAll: endNodeProps usingPathIn: [:startNode :rel :endNode |
-		startNode <- rel - endNode
-	]
-]
-
-{ #category : #'actions-relationships' }
 SgGraphDb >> mergeInRelationshipTyped: typeOrTypes fromNodeId: startNodeId toNodeId: endNodeId properties: propertiesArray [
 	| query |
 	query := CyQuery
@@ -297,15 +290,13 @@ SgGraphDb >> nodesLabeled: labelOrLabels where: whereClauseBuilder skip: skip li
 ]
 
 { #category : #private }
-SgGraphDb >> objectsFromCypherResults: rawRecords [
-	^ rawRecords collect: [:each | self graphObjectClass on: each from: self]
+SgGraphDb >> objectFromCypherResult: rawRecord [
+	^ self graphObjectClass on: rawRecord from: self
 ]
 
-{ #category : #'actions-relationships' }
-SgGraphDb >> outRelationshipsTyped: typeOrTypes from: startNodeId havingAll: assocArray endNodeWithLabels: labels havingAll: endNodeProps [
-	^self relationshipsTyped: typeOrTypes from: startNodeId havingAll: assocArray endNodeWithLabels: labels havingAll: endNodeProps usingPathIn: [:startNode :rel :endNode |
-		startNode - rel -> endNode
-	]
+{ #category : #private }
+SgGraphDb >> objectsFromCypherResults: rawRecords [
+	^ rawRecords collect: [:each | self objectFromCypherResult: each ]
 ]
 
 { #category : #'actions-relationships' }
@@ -358,17 +349,21 @@ SgGraphDb >> relationshipAt: systemId propertyAt: key put: value [
 ]
 
 { #category : #'actions-relationships' }
-SgGraphDb >> relationshipsTyped: typeOrTypes from: startNodeId havingAll: relProps endNodeWithLabels: labels havingAll: endNodeProps usingPathIn: pathCreationBlock [
-	| query returnedPath |
+SgGraphDb >> relationshipsTyped: typeOrTypes direction: direction from: startNodeId havingAll: relProps endNodeWithLabels: labels havingAll: endNodeProps whereIn: whereClauseBuilder [
+	| pathBlock query returnedPaths |
+	pathBlock := [ :startNode :rel :endNode | startNode - rel - endNode ].
+	direction == #in ifTrue: [ pathBlock := [ :startNode :rel :endNode | startNode <- rel - endNode ]].
+	direction == #out ifTrue: [ pathBlock := [ :startNode :rel :endNode | startNode - rel -> endNode ]].
+	
 	query := CyQuery
 		matchPathWithRelationshipsOfTypes: typeOrTypes
 		havingAll: relProps
 		fromNodeAt: startNodeId
 		endNodeIn: [ :e | e node: labels props: endNodeProps ]
-		pathIn: pathCreationBlock.
-	returnedPath := self
-		firstOrNilOf: (self runCypherResultWrapped: query).
-	^ returnedPath ifNil: [#()] ifNotNil: [ :pa | self objectsFromCypherResults: pa relationships]
+		pathIn: pathBlock
+		whereIn: whereClauseBuilder.
+	returnedPaths := (self runCypherResultWrapped: query).
+	^ returnedPaths collect: [ :pa | self objectFromCypherResult: pa relationship]
 ]
 
 { #category : #'initialize-release' }
