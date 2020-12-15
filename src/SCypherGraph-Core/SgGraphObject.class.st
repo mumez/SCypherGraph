@@ -26,6 +26,11 @@ SgGraphObject class >> on: rawGraphObject from: database [
 ]
 
 { #category : #accessing }
+SgGraphObject >> @ propName [
+	^self propertyAt: propName
+]
+
+{ #category : #accessing }
 SgGraphObject >> db [
 	^ db
 ]
@@ -46,6 +51,21 @@ SgGraphObject >> initWithDb: aDatabase [
 	sessionManager := db sessionManager.
 	settings := db settings.
 	id := rawGraphObject id
+]
+
+{ #category : #testing }
+SgGraphObject >> isNode [
+	^self rawGraphObject isNode
+]
+
+{ #category : #testing }
+SgGraphObject >> isPath [
+	^self rawGraphObject isPath
+]
+
+{ #category : #testing }
+SgGraphObject >> isRelationship [
+	^self rawGraphObject isRelationship
 ]
 
 { #category : #properties }

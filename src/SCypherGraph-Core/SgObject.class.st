@@ -33,6 +33,11 @@ SgObject >> createSessionManagerFrom: aSessionManagerClass [
 		ifFalse: [aSessionManagerClass new].
 ]
 
+{ #category : #factory }
+SgObject >> graphObjectClass [
+	^ SgGraphObject
+]
+
 { #category : #accessing }
 SgObject >> id [
 	^ id

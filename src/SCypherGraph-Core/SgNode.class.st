@@ -1,12 +1,39 @@
 Class {
 	#name : #SgNode,
 	#superclass : #SgGraphObject,
+	#instVars : [
+		'path'
+	],
 	#category : #'SCypherGraph-Core'
 }
 
 { #category : #deleting }
 SgNode >> delete [
 	^self db deleteNodeAt: self id
+]
+
+{ #category : #'accessing-paths' }
+SgNode >> inOneHopPathsTyped: typeOrTypes havingAll: relProps endNodeWithLabels: labels havingAll: endNodeProps [
+	^ self db
+		oneHopPathsTyped: typeOrTypes
+		direction: #in
+		from: self id
+		havingAll: relProps
+		endNodeWithLabels: labels
+		havingAll: endNodeProps
+		whereIn: [:start :rel :end |] returning: [ :path | path ].
+]
+
+{ #category : #'accessing-paths' }
+SgNode >> inOneHopPathsTyped: typeOrTypes where: where [
+	^ self db
+		oneHopPathsTyped: typeOrTypes
+		direction: #in
+		from: self id
+		havingAll: {}
+		endNodeWithLabels: {}
+		havingAll: {}
+		whereIn: where returning: [ :path | path ]
 ]
 
 { #category : #'accessing-relationships' }
@@ -31,31 +58,46 @@ SgNode >> inRelationshipsTyped: typeOrTypes having: key value: value [
 
 { #category : #'accessing-relationships' }
 SgNode >> inRelationshipsTyped: typeOrTypes havingAll: relProps endNodeWithLabels: labels havingAll: endNodeProps [
-	^ self db
-		relationshipsTyped: typeOrTypes
-		direction: #in
-		from: self id
+	^ (self
+		inOneHopPathsTyped: typeOrTypes
 		havingAll: relProps
 		endNodeWithLabels: labels
-		havingAll: endNodeProps
-		whereIn: [ :start :rel :end | ]
+		havingAll: endNodeProps) collect: [ :each | each relationship ]
 ]
 
 { #category : #'accessing-relationships' }
 SgNode >> inRelationshipsTyped: typeOrTypes where: where [
-	^ self db
-		relationshipsTyped: typeOrTypes
-		direction: #in
-		from: self id
-		havingAll: {}
-		endNodeWithLabels: {}
-		havingAll: {}
-		whereIn: where
+	^ (self inOneHopPathsTyped: typeOrTypes where: where)
+			collect: [ :each | each relationship ]
 ]
 
 { #category : #properties }
 SgNode >> mergeProperties: propAssocs [
 	^self db nodeAt: self id mergeProperties: propAssocs
+]
+
+{ #category : #'accessing-paths' }
+SgNode >> outOneHopPathsTyped: typeOrTypes havingAll: relProps endNodeWithLabels: labels havingAll: endNodeProps [
+	^ self db
+		oneHopPathsTyped: typeOrTypes
+		direction: #out
+		from: self id
+		havingAll: relProps
+		endNodeWithLabels: labels
+		havingAll: endNodeProps
+		whereIn: [:start :rel :end |] returning: [ :path | path ].
+]
+
+{ #category : #'accessing-paths' }
+SgNode >> outOneHopPathsTyped: typeOrTypes where: where [
+	^ self db
+		oneHopPathsTyped: typeOrTypes
+		direction: #out
+		from: self id
+		havingAll: {}
+		endNodeWithLabels: {}
+		havingAll: {}
+		whereIn: where returning: [ :path | path ]
 ]
 
 { #category : #'accessing-relationships' }
@@ -80,26 +122,27 @@ SgNode >> outRelationshipsTyped: typeOrTypes having: key value: value [
 
 { #category : #'accessing-relationships' }
 SgNode >> outRelationshipsTyped: typeOrTypes havingAll: relProps endNodeWithLabels: labels havingAll: endNodeProps [
-	^ self db
-		relationshipsTyped: typeOrTypes
-		direction: #out
-		from: self id
+	^ (self
+		outOneHopPathsTyped: typeOrTypes
 		havingAll: relProps
 		endNodeWithLabels: labels
-		havingAll: endNodeProps
-		whereIn: [ :start :rel :end | ]
+		havingAll: endNodeProps) collect: [ :each | each relationship ]
 ]
 
 { #category : #'accessing-relationships' }
 SgNode >> outRelationshipsTyped: typeOrTypes where: where [
-	^ self db
-		relationshipsTyped: typeOrTypes
-		direction: #out
-		from: self id
-		havingAll: {}
-		endNodeWithLabels: {}
-		havingAll: {}
-		whereIn: where
+	^ (self outOneHopPathsTyped: typeOrTypes where: where)
+			collect: [ :each | each relationship ]
+]
+
+{ #category : #accessing }
+SgNode >> path [
+	^ path
+]
+
+{ #category : #accessing }
+SgNode >> path: anObject [
+	path := anObject
 ]
 
 { #category : #properties }
