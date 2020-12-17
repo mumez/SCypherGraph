@@ -157,5 +157,14 @@ SgNode >> propertyAt: key put: value [
 
 { #category : #'actrions-relationships' }
 SgNode >> relateOneTo: otherNode typed: types properties: propertiesArray [
-	^ self db mergeOutRelationshipTyped: types fromNodeId: self id toNodeId: otherNode id properties: propertiesArray
+	| newOrExsitingPath |
+	newOrExsitingPath := self db mergeOutRelationshipTyped: types fromNodeId: self id toNodeId: otherNode id properties: propertiesArray.
+	^ newOrExsitingPath ifNotNil: [ :p | p relationship ]
+]
+
+{ #category : #'actrions-relationships' }
+SgNode >> relateTo: otherNode typed: types properties: propertiesArray [
+	| newPath |
+	newPath := self db createOutRelationshipTyped: types fromNodeId: self id toNodeId: otherNode id properties: propertiesArray.
+	^ newPath ifNotNil: [ :p | p relationship ]
 ]
