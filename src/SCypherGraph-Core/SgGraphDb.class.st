@@ -295,12 +295,12 @@ SgGraphDb >> nodesLabeled: labelOrLabels where: whereClauseBuilder skip: skip li
 	^self runCypherResultWrapped: query
 ]
 
-{ #category : #private }
+{ #category : #'actions-cypher' }
 SgGraphDb >> objectFromCypherResult: rawRecord [
 	^ self graphObjectClass on: rawRecord from: self
 ]
 
-{ #category : #private }
+{ #category : #'actions-cypher' }
 SgGraphDb >> objectsFromCypherResults: rawRecords [
 	^ rawRecords collect: [:each | self objectFromCypherResult: each ]
 ]
@@ -381,7 +381,7 @@ SgGraphDb >> release [
 	super release
 ]
 
-{ #category : #private }
+{ #category : #'actions-cypher' }
 SgGraphDb >> runCypherResultWrapped: cypherQuery [
 	| rawRecords |
 	rawRecords := (self runCypher: cypherQuery cypherString) firstFieldValues.
@@ -403,7 +403,7 @@ SgGraphDb >> statusOfTransactCypher: cypherQuery arguments: argsDict [
 	^ (self transactCypher: cypherQuery cypherString arguments: argsDict) status
 ]
 
-{ #category : #private }
+{ #category : #'actions-cypher' }
 SgGraphDb >> transactCypherResultWrapped: cypherQuery [
 	| rawRecords |
 	rawRecords := (self transactCypher: cypherQuery cypherString) firstFieldValues.
