@@ -1,5 +1,5 @@
 # SCypherGraph
-[WIP] Object wrapper of Neo4j graph database using SmallBolt and SCypher
+High-level object wrapper of [Neo4j](https://neo4j.com/) graph database using [SmallBolt](https://github.com/mumez/SmallBolt) and [SCypher](https://github.com/mumez/SCypher)
 
 # Installation
 
