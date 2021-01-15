@@ -85,6 +85,38 @@ SgBasicTestCase >> testCreateAndDeleteNode [
 ]
 
 { #category : #testing }
+SgBasicTestCase >> testCreateAndDeleteRelationship [
+	| personLabel teachesType |
+	personLabel := 'TestPerson2'.
+	teachesType := 'TestTeaches'.
+	self dbDo: [ :db |
+		| existedNodes nodeA nodeB rels  rel |
+		existedNodes := db nodesLabeled: personLabel.
+		self assert: (existedNodes isEmpty).
+		nodeA := db createNodeLabeled: personLabel properties: {'name' -> 'taro'. 'age' -> 33}.
+		nodeB := db createNodeLabeled: personLabel properties: {'name' -> 'hanako'. 'age' -> 9 }.
+		
+		rels := nodeA outRelationshipsTyped: teachesType.
+		self assert: (rels isEmpty).
+		
+		nodeA relateOneTo: nodeB typed: 'TestTeaches' properties: {'years'->3}.
+		
+		rels := nodeA outRelationshipsTyped: teachesType.
+		self assert: (rels size = 1).
+		rel := rels first.
+		self assert: ((rel propertyAt: 'years' ) =  3).
+		
+		rel delete.
+		
+		rels := nodeA outRelationshipsTyped: teachesType.
+		self assert: (rels isEmpty).
+		
+		nodeA delete.
+		nodeB delete.
+	]
+]
+
+{ #category : #testing }
 SgBasicTestCase >> testGetSetNodeProperties [
 	| personLabel |
 	personLabel := 'TestPerson'.
