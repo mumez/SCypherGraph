@@ -3,6 +3,8 @@ High-level object wrapper of [Neo4j](https://neo4j.com/) graph database using [S
 
 # Installation
 
+Currently Pharo 8 and Pharo 9 are supported.
+
 ```smalltalk
 Metacello new
   baseline: 'SCypherGraph';
@@ -11,6 +13,8 @@ Metacello new
 ```
 
 # Examples
+
+Please see [Interacting with Neo4j from Pharo Smalltalk](https://hashnode.com/post/interacting-with-neo4j-from-pharo-smalltalk-ckltglsqq085o10s14bkhfhke) for details.
 
 ## Basic
 
@@ -97,4 +101,3 @@ result := db runCypher: query arguments: { actorNameParam -> 'Tom' }.
 ```smalltalk
 db settings targetUri: 'bolt://127.0.0.1:7687'.
 ```
-
