@@ -26,9 +26,8 @@ SgBasicTestCase class >> initialize [
 { #category : #private }
 SgBasicTestCase >> dbDo: aBlock [
 	| db |
-	db := SgGraphDb kind: #testing.
-	[ db settings: self settings.
-	aBlock value: db ]
+	db := SgGraphDb kind: #testing settings: self settings.
+	[aBlock value: db ]
 		ifCurtailed: [ db release ]
 ]
 
