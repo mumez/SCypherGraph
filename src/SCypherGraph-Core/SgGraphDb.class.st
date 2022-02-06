@@ -11,8 +11,14 @@ SgGraphDb class >> default [
 
 { #category : #'instance creation' }
 SgGraphDb class >> kind: clientKindKey [
+	^ self kind: clientKindKey settings: SgSettings default
+]
+
+{ #category : #'instance creation' }
+SgGraphDb class >> kind: clientKindKey settings: aSgSettings [
 	| inst |
 	inst := self new. 
+	inst settings: aSgSettings.
 	inst settings clientKindKey: clientKindKey.
 	^ inst
 ]
